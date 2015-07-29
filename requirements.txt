@@ -1,0 +1,4 @@
+PyYAML==3.11
+lxml==3.4.0
+requests==2.4.3
+html2text==2014.9.25
