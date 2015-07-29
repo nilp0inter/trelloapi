@@ -28,10 +28,12 @@ class TrelloAPI:
     Dynamically generates methods corresponding with API URLs.
 
     """
-    def __init__(self, endpoints, name, apikey, parent=None, api_arg=None):
+    def __init__(self, endpoints, name, apikey, parent=None, api_arg=None,
+                 token=None):
         self._endpoints = endpoints
         self._name = name
         self._apikey = apikey
+        self._token = token
         self._parent = parent
         self._api_arg = api_arg
 
@@ -53,7 +55,8 @@ class TrelloAPI:
                 next_path = TrelloAPI(endpoints=self._endpoints[name],
                                       name=name,
                                       apikey=self._apikey,
-                                      parent=self)
+                                      parent=self,
+                                      token=self._token)
                 setattr(self, name, next_path)
 
     @staticmethod
@@ -91,7 +94,10 @@ class TrelloAPI:
         Makes the HTTP request.
 
         """
-        kwargs.setdefault('params', {}).update({'key': self._apikey})
+        params = kwargs.setdefault('params', {})
+        params.update({'key': self._apikey})
+        if self._token is not None:
+            params.update({'token': self._token})
 
         http_method = getattr(requests, method_name)
         return http_method(TRELLO_URL + self._url, *args, **kwargs)
@@ -113,7 +119,8 @@ class TrelloAPI:
                              name=name,
                              apikey=self._apikey,
                              parent=self,
-                             api_arg=_api_arg)
+                             api_arg=_api_arg,
+                             token=self._token)
         else:
             raise ValueError("Unknown argument {}".format(kwargs.keys()))
 
@@ -127,8 +134,8 @@ def generate_api(version):
     version.
 
     """
-    def get_partial_api(key):
-        return TrelloAPI(ENDPOINTS[version], version, key)
+    def get_partial_api(key, token=None):
+        return TrelloAPI(ENDPOINTS[version], version, key, token=token)
 
     get_partial_api.__doc__ = \
         """Interfaz REST con Trello. Versión {}""".format(version)
