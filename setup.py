@@ -26,7 +26,7 @@ setup(name='trelloapi',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          'PyYAML==3.11',
+          'PyYAML==5.4',
       ],
       entry_points={
       })
